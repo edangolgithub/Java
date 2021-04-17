@@ -25,3 +25,31 @@ sudo cp /home/ec2-user/Java/mav/mvnweb/mvnweb/target/mvnweb.war /usr/share/tomca
 
 mvn tomcat7:run
 ```
+
+#### for springboot mvc web
+```
+pom.xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+```
+```
+ ./mvnw spring-boot:run
+ ```
+ ```
+ ./mvnw clean package
+ ```
+```
+java -jar target/springweb-0.0.1-SNAPSHOT.jar
+```
+##### port
+```
+fuser 8080/tcp
+fuser -k 8080/tcp
+```
+
+```
+sudo update-alternatives --config java
+update-alternatives --config javac
+```
