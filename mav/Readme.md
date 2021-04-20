@@ -53,3 +53,9 @@ fuser -k 8080/tcp
 sudo update-alternatives --config java
 update-alternatives --config javac
 ```
+
+### serverless
+
+```
+mvn clean install
+```

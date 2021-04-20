@@ -91,6 +91,12 @@
               "LogGroupName": "/aws/lambda/springserverless-dev-hello"
             }
           },
+          "EvanLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/springserverless-dev-evan"
+            }
+          },
           "IamRoleLambdaExecution": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -175,7 +181,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/springserverless/dev/1618631343430-2021-04-17T03:49:03.430Z/hello-dev.jar"
+                "S3Key": "serverless/springserverless/dev/1618894679431-2021-04-20T04:57:59.431Z/hello-dev.jar"
               },
               "Handler": "com.serverless.Handler",
               "Runtime": "java8",
@@ -193,14 +199,49 @@
               "HelloLogGroup"
             ]
           },
-          "HelloLambdaVersionwPOvgwTjU2CfA4wWz1iwbtnq43DoFZEO4LNtdUAJM": {
+          "EvanLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/springserverless/dev/1618894679431-2021-04-20T04:57:59.431Z/hello-dev.jar"
+              },
+              "Handler": "com.serverless.EvanHandler",
+              "Runtime": "java8",
+              "FunctionName": "springserverless-dev-evan",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "EvanLogGroup"
+            ]
+          },
+          "HelloLambdaVersionBBlE3wEZKAMLdLm4RHxD8oTGKJvq2JWdAWtPKwu4x8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "HelloLambdaFunction"
               },
-              "CodeSha256": "bFZm3NpiokHfKDdKnRhZGzH2X+H7sF9LXV1buA/v4IE="
+              "CodeSha256": "X7c9lnc+j3J1eW3fX3OKVfIqLrCYxVfEp+wXynLF5/0="
+            }
+          },
+          "EvanLambdaVersionn7vaXn0W5utQN9qMk850u7WVFJMC68MniUjmlFz1RE": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "EvanLambdaFunction"
+              },
+              "CodeSha256": "X7c9lnc+j3J1eW3fX3OKVfIqLrCYxVfEp+wXynLF5/0="
             }
           },
           "HttpApi": {
@@ -294,6 +335,78 @@
               }
             },
             "DependsOn": "HttpApiIntegrationHello"
+          },
+          "EvanLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "EvanLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationEvan": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"EvanLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 6500
+            }
+          },
+          "HttpApiRouteGetEvan": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /evan",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationEvan"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationEvan"
           }
         },
         "Outputs": {
@@ -305,7 +418,13 @@
           "HelloLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "HelloLambdaVersionwPOvgwTjU2CfA4wWz1iwbtnq43DoFZEO4LNtdUAJM"
+              "Ref": "HelloLambdaVersionBBlE3wEZKAMLdLm4RHxD8oTGKJvq2JWdAWtPKwu4x8"
+            }
+          },
+          "EvanLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "EvanLambdaVersionn7vaXn0W5utQN9qMk850u7WVFJMC68MniUjmlFz1RE"
             }
           },
           "HttpApiId": {
@@ -438,7 +557,24 @@
         "timeout": 6,
         "runtime": "java8",
         "vpc": {},
-        "versionLogicalId": "HelloLambdaVersionwPOvgwTjU2CfA4wWz1iwbtnq43DoFZEO4LNtdUAJM"
+        "versionLogicalId": "HelloLambdaVersionBBlE3wEZKAMLdLm4RHxD8oTGKJvq2JWdAWtPKwu4x8"
+      },
+      "evan": {
+        "handler": "com.serverless.EvanHandler",
+        "events": [
+          {
+            "httpApi": "GET /evan",
+            "resolvedMethod": "GET",
+            "resolvedPath": "/evan"
+          }
+        ],
+        "name": "springserverless-dev-evan",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "EvanLambdaVersionn7vaXn0W5utQN9qMk850u7WVFJMC68MniUjmlFz1RE"
       }
     },
     "configValidationMode": "warn",
@@ -454,7 +590,7 @@
       },
       "package": {
         "artifact": "target/hello-dev.jar",
-        "artifactDirectoryName": "serverless/springserverless/dev/1618631343430-2021-04-17T03:49:03.430Z"
+        "artifactDirectoryName": "serverless/springserverless/dev/1618894679431-2021-04-20T04:57:59.431Z"
       },
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
@@ -463,7 +599,7 @@
     "isDashboardMonitoringPreconfigured": false
   },
   "package": {
-    "artifactDirectoryName": "serverless/springserverless/dev/1618631343430-2021-04-17T03:49:03.430Z",
+    "artifactDirectoryName": "serverless/springserverless/dev/1618894679431-2021-04-20T04:57:59.431Z",
     "artifact": "hello-dev.jar"
   }
 }
