@@ -1,0 +1,12 @@
+{
+    "java.project.sourcePaths": [
+        "evanjava/src",
+        "evanjava/lib"
+    ],
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "evanjava/lib/a.jar",
+        "evanjava/lib/mysql.jar",
+        "evanjava/lib/mssql-jdbc-9.2.1.jre11.jar"
+    ]
+}
