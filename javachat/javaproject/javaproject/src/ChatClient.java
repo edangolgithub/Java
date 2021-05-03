@@ -26,7 +26,7 @@ import javax.swing.JTextField;
  * When the server sends a line beginning with "MESSAGE" then all characters
  * following this string should be displayed in its message area.
  */
-class ChattyClient {
+public class ChatClient {
 
     String serverAddress;
     Scanner in;
@@ -42,7 +42,7 @@ class ChattyClient {
      * editable, and only becomes editable AFTER the client receives the
      * NAMEACCEPTED message from the server.
      */
-    public ChattyClient(String serverAddress) {
+    public ChatClient(String serverAddress) {
         this.serverAddress = serverAddress;
 
         textField.setEditable(false);
@@ -89,11 +89,12 @@ class ChattyClient {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            System.err.println("Pass the server IP as the sole command line argument");
-            return;
-        }
-        var client = new ChattyClient(args[0]);
+        // if (args.length != 1) {
+        //     System.err.println("Pass the server IP as the sole command line argument");
+        //     return;
+        // }
+        args[0]="localhost";
+        var client = new ChatClient(args[0]);
         client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         client.frame.setVisible(true);
         client.run();
